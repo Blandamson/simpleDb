@@ -3,6 +3,7 @@ package simpledb;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.*;
 import java.util.Iterator;
 
 /**
@@ -15,7 +16,7 @@ public class Tuple implements Serializable {
     private static final long serialVersionUID = 1L;
     private TupleDesc tupleDescriptor;
     private RecordId recordId;
-    private Field fields[];
+    private ArrayList<Field> fields;
     private TupleIterator tupleIterator;
 
     /**
@@ -68,7 +69,8 @@ public class Tuple implements Serializable {
      *            new value for the field.
      */
     public void setField(int i, Field f) {
-        // some code goes here
+        // some code goes here - altered
+        fields.set(i, f);
     }
 
     /**
@@ -78,8 +80,8 @@ public class Tuple implements Serializable {
      *            field index to return. Must be a valid index.
      */
     public Field getField(int i) {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        return fields.get(i);
     }
 
     /**
@@ -91,8 +93,16 @@ public class Tuple implements Serializable {
      * where \t is any whitespace (except a newline)
      */
     public String toString() {
-        // some code goes here
-        throw new UnsupportedOperationException("Implement this");
+        // some code goes here - altered
+        String tupleDescription = "";
+        for (int i = 0; i < fields.size(); i++){
+            tupleDescription += ((Field)fields.get(i)).toString();
+            if (i != fields.size()) {
+                tupleDescription += " ";
+            }
+        }
+        //throw new UnsupportedOperationException("Implement this");
+        return tupleDescription;
     }
 
     /**
@@ -102,7 +112,7 @@ public class Tuple implements Serializable {
     public Iterator<Field> fields()
     {
         // some code goes here
-        return null;
+        return fields.iterator();
     }
 
     /**
