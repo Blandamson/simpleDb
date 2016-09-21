@@ -64,19 +64,19 @@ public class TupleDesc implements Serializable {
      */
 
     public TupleDesc(Type[] typeAr, String[] fieldAr) {
-        // some code goes here - altered;
-        if (typeAr.length > 1 && fieldAr.length == typeAr.length){
+        // some code goes here - altered
             tupleDescriptorItems = new ArrayList<TDItem>();
             for (int i = 0; i < typeAr.length; i++) {
-                TDItem currentItem = new TDItem(typeAr[i], fieldAr[i]);
+                String tempFieldName = "";
+                if (i < fieldAr.length){
+                    tempFieldName = fieldAr[i];
+                }
+                else{
+                    tempFieldName = "Unknown";
+                }
+                TDItem currentItem = new TDItem(typeAr[i], tempFieldName);
                 tupleDescriptorItems.add(currentItem);
             }
-        }
-        else {
-            throw new IllegalArgumentException("Either the typeAr argument passed into the TupleDesc constructor was zero-length or the length of typeAr was not equal to the length of fieldAr. typeAr should have at least one element and the typeAr and fieldAr arrays should have the same number of elements.");
-        }
-
-
     }
 
     /**
@@ -146,10 +146,16 @@ public class TupleDesc implements Serializable {
      */
     public int fieldNameToIndex(String name) throws NoSuchElementException {
         // some code goes here - altered
+        //System.out.println("Name to match: "+name);
         for(int i = 0; i < tupleDescriptorItems.size(); i++){
             TDItem tempItem = tupleDescriptorItems.get(i);
             String tempName = tempItem.fieldName;
-            if (tempName.equals(name)){
+            //System.out.println("Tempname: "+  tempName);
+            if(tempName == null) {
+                //System.out.println("About to continue.");
+                continue;
+            }
+            if (tempName.equalsIgnoreCase(name)){
                 return i;
             }
         }
@@ -191,10 +197,10 @@ public class TupleDesc implements Serializable {
         }
         for(int i = 0; i< td2.tupleDescriptorItems.size(); i++){
             String tempName = td2.getFieldName(i);
-            if (!mergedNameList.contains(tempName)){
+           // if (!mergedNameList.contains(tempName)){
                 mergedNameList.add(tempName);
                 mergedTypeList.add(td2.getFieldType(i));
-            }
+            //}
         }
         Type[] typeAr = new Type[mergedTypeList.size()];
         String[] nameAr = new String[mergedNameList.size()];
@@ -217,6 +223,13 @@ public class TupleDesc implements Serializable {
      */
     public boolean equals(Object o) {
         // some code goes here - altered
+        if (o == null){
+            System.out.println("Object o was null. About to return.");
+            return false;
+        }
+        if (!(o instanceof TupleDesc)){
+            return false;
+        }
         if (tupleDescriptorItems.size() == ((TupleDesc)o).numFields()){
             for (int i = 0; i < tupleDescriptorItems.size(); i++){
                 TDItem ourItem = tupleDescriptorItems.get(i);

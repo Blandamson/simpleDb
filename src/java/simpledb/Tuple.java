@@ -29,6 +29,7 @@ public class Tuple implements Serializable {
     public Tuple(TupleDesc td) {
         // some code goes here - altered
         this.tupleDescriptor = td;
+        fields = new ArrayList<>();
         //initialize the array object containing the field values.
     }
 
@@ -70,7 +71,7 @@ public class Tuple implements Serializable {
      */
     public void setField(int i, Field f) {
         // some code goes here - altered
-        fields.set(i, f);
+        fields.add(i, f);
     }
 
     /**
