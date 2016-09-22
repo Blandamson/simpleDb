@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,12 +19,42 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Catalog {
 
+    //Max added this helper class (CatalogItem).
+    private class CatalogItem{
+        private int id;
+        private String primaryKey;
+        private String name;
+        private DbFile file;
+
+        public CatalogItem(DbFile file, String primaryKey, String name){
+            this.primaryKey = primaryKey;
+            this.name = name;
+            this.file = file;
+        }
+
+        public DbFile getFile(){
+            return file;
+        }
+        public int getId(){
+            return file.getId();
+        }
+        public String getPrimaryKey(){
+            return primaryKey;
+        }
+        public String getName() {
+            return name;
+        }
+    }
+
+
+    private ArrayList<CatalogItem> items;
     /**
      * Constructor.
      * Creates a new, empty catalog.
      */
     public Catalog() {
-        // some code goes here
+        // some code goes here - altered
+        items = new ArrayList<CatalogItem>();
     }
 
     /**
@@ -36,7 +67,15 @@ public class Catalog {
      * @param pkeyField the name of the primary key field
      */
     public void addTable(DbFile file, String name, String pkeyField) {
-        // some code goes here
+        // some code goes here - altered
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            if (tempItem.getName().equals(name) || tempItem.getId() == file.getId()){
+                items.remove(i);
+            }
+        }
+        CatalogItem newItem = new CatalogItem(file, pkeyField, name);
+        items.add(newItem);
     }
 
     public void addTable(DbFile file, String name) {
@@ -59,8 +98,17 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public int getTableId(String name) throws NoSuchElementException {
-        // some code goes here
-        return 0;
+        // some code goes here - altered
+        if (name == null){
+            throw new NoSuchElementException();
+        }
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            if (tempItem.getName() != null && name.equals(tempItem.getName())){
+                return tempItem.getId();
+            }
+        }
+        throw new NoSuchElementException();
     }
 
     /**
@@ -70,8 +118,15 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            if (tempItem.getId() == tableid){
+                DbFile tempFile= tempItem.getFile();
+                return tempFile.getTupleDesc();
+            }
+        }
+        throw new NoSuchElementException("getTupleDesc() was passed a tableid which does not correspond to any table in the catalogue.");
     }
 
     /**
@@ -81,28 +136,53 @@ public class Catalog {
      *     function passed to addTable
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
-        // some code goes here
-        return null;
+        // some code goes here- altered
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            if (tempItem.getId() == tableid){
+                return tempItem.getFile();
+            }
+        }
+        throw new NoSuchElementException("getDatabaseFile() was passed a tableid which does not correspond to any table in the catalogue.");
     }
 
     public String getPrimaryKey(int tableid) {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            if (tempItem.getId() == tableid){
+                return tempItem.getPrimaryKey();
+            }
+        }
+        throw new NoSuchElementException("getPrimaryKey() was passed a tableid which does not correspond to any table in the catalogue.");
+
     }
 
     public Iterator<Integer> tableIdIterator() {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        ArrayList tableIds = new ArrayList<Integer>();
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            tableIds.add(tempItem.getId());
+        }
+        return tableIds.iterator();
     }
 
     public String getTableName(int id) {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        for (int i = 0; i < items.size(); i++){
+            CatalogItem tempItem = items.get(i);
+            if (tempItem.getId() == id){
+                return tempItem.getName();
+            }
+        }
+        throw new NoSuchElementException("getTableName() was passed a tableid which does not correspond to any table in the catalogue.");
     }
     
     /** Delete all tables from the catalog */
     public void clear() {
-        // some code goes here
+        // some code goes here - altered
+        items.clear();
     }
     
     /**
@@ -148,7 +228,7 @@ public class Catalog {
                 String[] namesAr = names.toArray(new String[0]);
                 TupleDesc t = new TupleDesc(typeAr, namesAr);
                 HeapFile tabHf = new HeapFile(new File(baseFolder+"/"+name + ".dat"), t);
-                addTable(tabHf,name,primaryKey);
+                addTable(tabHf, name, primaryKey);
                 System.out.println("Added table : " + name + " with schema " + t);
             }
         } catch (IOException e) {
