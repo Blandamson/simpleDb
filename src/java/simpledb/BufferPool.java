@@ -2,6 +2,7 @@ package simpledb;
 
 import java.io.*;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,13 +27,17 @@ public class BufferPool {
     constructor instead. */
     public static final int DEFAULT_PAGES = 50;
 
+
+    private HashMap<PageId, Page> pages;
     /**
      * Creates a BufferPool that caches up to numPages pages.
      *
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int numPages) {
-        // some code goes here
+        // some code goes here - altered
+        pages = new HashMap<PageId, Page>(numPages);
+
     }
     
     public static int getPageSize() {
@@ -58,7 +63,7 @@ public class BufferPool {
      * is present, it should be returned.  If it is not present, it should
      * be added to the buffer pool and returned.  If there is insufficient
      * space in the buffer pool, an page should be evicted and the new page
-     * should be added in its place.
+     * should be added in its place. - For lab 1 just throw a DbException.
      *
      * @param tid the ID of the transaction requesting the page
      * @param pid the ID of the requested page
@@ -66,7 +71,10 @@ public class BufferPool {
      */
     public  Page getPage(TransactionId tid, PageId pid, Permissions perm)
         throws TransactionAbortedException, DbException {
-        // some code goes here
+        // some code goes here - altered
+        if(pages.containsKey(pid)){
+            return pages.get(pid);
+        }
         return null;
     }
 

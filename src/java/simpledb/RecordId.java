@@ -10,6 +10,8 @@ public class RecordId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private PageId pageId;
+    private int tupleNum;
     /**
      * Creates a new RecordId referring to the specified PageId and tuple
      * number.
@@ -20,23 +22,25 @@ public class RecordId implements Serializable {
      *            the tuple number within the page.
      */
     public RecordId(PageId pid, int tupleno) {
-        // some code goes here
+        // some code goes here - altered
+        this.pageId = pid;
+        this.tupleNum = tupleno;
     }
 
     /**
      * @return the tuple number this RecordId references.
      */
     public int tupleno() {
-        // some code goes here
-        return 0;
+        // some code goes here - altered
+        return tupleNum;
     }
 
     /**
      * @return the page id this RecordId references.
      */
     public PageId getPageId() {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        return pageId;
     }
 
     /**
@@ -47,8 +51,14 @@ public class RecordId implements Serializable {
      */
     @Override
     public boolean equals(Object o) {
-        // some code goes here
-        throw new UnsupportedOperationException("implement this");
+        // some code goes here - altered
+        //throw new UnsupportedOperationException("implement this");
+        if (o instanceof RecordId){
+            if (((RecordId)o).hashCode() == hashCode()){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -59,9 +69,17 @@ public class RecordId implements Serializable {
      */
     @Override
     public int hashCode() {
-        // some code goes here
-        throw new UnsupportedOperationException("implement this");
-
+        // some code goes here - altered
+        //throw new UnsupportedOperationException("implement this");
+        //Hash value is derived by concatanating the pageId hash with the tupleNumber.
+        String tupleNumberStr = Integer.toString(tupleNum);
+        //System.out.format("tupleNumberStr is %s\n", tupleNumberStr);
+        String pageIdHashStr = Integer.toString(pageId.hashCode());
+        //System.out.format("pageIdHashStr is %s\n", pageIdHashStr);
+        String recordIdHashStr = pageIdHashStr + tupleNumberStr;
+        //System.out.format("recordIdHashStr is %s\n", recordIdHashStr);
+        return Integer.parseInt(recordIdHashStr);
     }
 
 }
+
