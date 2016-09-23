@@ -21,7 +21,6 @@ public class Catalog {
 
     //Max added this helper class (CatalogItem).
     private class CatalogItem{
-        private int id;
         private String primaryKey;
         private String name;
         private DbFile file;

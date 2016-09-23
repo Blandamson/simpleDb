@@ -29,6 +29,7 @@ public class BufferPool {
 
 
     private HashMap<PageId, Page> pages;
+    private int poolCapacity;
     /**
      * Creates a BufferPool that caches up to numPages pages.
      *
@@ -37,6 +38,7 @@ public class BufferPool {
     public BufferPool(int numPages) {
         // some code goes here - altered
         pages = new HashMap<PageId, Page>(numPages);
+        poolCapacity = numPages;
 
     }
     
@@ -75,7 +77,20 @@ public class BufferPool {
         if(pages.containsKey(pid)){
             return pages.get(pid);
         }
-        return null;
+        else {
+            //Check if buffer pool is full.
+            if (pages.size() == poolCapacity){
+                throw new DbException("The buffer pool is full and no eviction policy has been implemented.");
+            }
+            else{
+                //Get the HeapFile from the catalog using the PageId (has to be a tableId), read the requested page
+                //from the heapfile, put it in the bufferPool, and then return a pointer.
+                DbFile heapFile = Database.getCatalog().getDatabaseFile(pid.getTableId());
+                Page requestedPage = heapFile.readPage(pid);
+                pages.put(pid, requestedPage);
+                return requestedPage;
+            }
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package simpledb;
 
 import java.io.*;
+import java.nio.Buffer;
 import java.util.*;
 
 /**
@@ -15,6 +16,8 @@ import java.util.*;
  */
 public class HeapFile implements DbFile {
 
+    private File file;
+    private TupleDesc tupleDescriptor;
     /**
      * Constructs a heap file backed by the specified file.
      * 
@@ -23,7 +26,9 @@ public class HeapFile implements DbFile {
      *            file.
      */
     public HeapFile(File f, TupleDesc td) {
-        // some code goes here
+        // some code goes here - altered
+        this.file = f;
+        this.tupleDescriptor = td;
     }
 
     /**
@@ -32,8 +37,8 @@ public class HeapFile implements DbFile {
      * @return the File backing this HeapFile on disk.
      */
     public File getFile() {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        return file;
     }
 
     /**
@@ -46,8 +51,9 @@ public class HeapFile implements DbFile {
      * @return an ID uniquely identifying this HeapFile.
      */
     public int getId() {
-        // some code goes here
-        throw new UnsupportedOperationException("implement this");
+        // some code goes here - altered
+        //throw new UnsupportedOperationException("implement this");
+        return file.getAbsoluteFile().hashCode();
     }
 
     /**
@@ -56,14 +62,45 @@ public class HeapFile implements DbFile {
      * @return TupleDesc of this DbFile.
      */
     public TupleDesc getTupleDesc() {
-        // some code goes here
-        throw new UnsupportedOperationException("implement this");
+        // some code goes here - altered
+       // throw new UnsupportedOperationException("implement this");
+        return tupleDescriptor;
     }
 
     // see DbFile.java for javadocs
     public Page readPage(PageId pid) {
-        // some code goes here
-        return null;
+        // some code goes here - altered
+        //From pid we can get pageNumber, and from BufferPool we can get default page size (4KB). Using this
+        //information we can scan the file to the start of the page, write the page to a byte array, and then create
+        //a new HeapPage using the pageId and the byte array. Theoretically.
+        FileInputStream inputStream = null;
+        try {
+             inputStream = new FileInputStream(file);
+        }
+        catch (FileNotFoundException e){
+            System.out.println("File not found. From HeapFile.java readPage()");
+        }
+        int pageNum = pid.pageNumber(); //pageNum is assumed to be 1-based, not 0-based.
+        int pageSize = BufferPool.getPageSize();
+        long startOfPage = (pageNum -1) * pageSize;
+        byte[] pageData = new byte[pageSize];
+        if (inputStream != null){
+            try{
+                inputStream.skip(startOfPage);
+                inputStream.read(pageData ,0 ,pageSize);
+            }
+            catch (Exception e) {
+                System.out.println("Problem reading from the file input stream. HeapFile.java readPage().");
+            }
+        }
+        HeapPage requestedPage = null;
+        try{
+            requestedPage = new HeapPage((HeapPageId)pid, pageData);
+        }
+        catch (IOException e){
+            System.out.println("Problem creating a new Heap Page from the File. HeapFile.java readPage().");
+        }
+        return requestedPage;
     }
 
     // see DbFile.java for javadocs
@@ -76,8 +113,10 @@ public class HeapFile implements DbFile {
      * Returns the number of pages in this HeapFile.
      */
     public int numPages() {
-        // some code goes here
-        return 0;
+        // some code goes here - altered
+        long length = file.length();
+        int pageSize = BufferPool.getPageSize();
+        return (int)length/pageSize;
     }
 
     // see DbFile.java for javadocs
@@ -98,7 +137,9 @@ public class HeapFile implements DbFile {
 
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
-        // some code goes here
+        // some code goes here - altered
+        //The helper class "DbFileIteratorClass" was added by Max as a concrete implementation of
+        // the DbFileIterator interface.
         return null;
     }
 

@@ -1,0 +1,6 @@
+1. What does page number mean, and can we assume that the page number corresponds to the order in which the page was
+serialized? Relevant to implementation of HeapFile.readPage(). If the pages aren't serialized in order of page number
+how can you fetch a specific page from disc given a pageId without loading the whole heapFile into memory?
+
+2. How can the HeapFile iterator get a comprehensive list of pageId's that belong to a given heapFile to feed into
+ BufferPool.getPage()?
